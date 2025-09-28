@@ -1,6 +1,15 @@
 import click
 
+from funstall.packages import available_packages
 
-@click.command()
+
+@click.group()
 def funstall():
-    raise click.UsageError("No arguments provided")
+    pass
+    # raise click.UsageError("No arguments provided")
+
+
+@funstall.command("list")
+def list_packages() -> None:
+    for p in available_packages():
+        print(p.name)
