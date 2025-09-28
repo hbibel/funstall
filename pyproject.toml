@@ -5,9 +5,13 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = "==3.13.7"
 dependencies = [
+    "click>=8.3.0",
     "isort>=6.0.1",
     "mypy>=1.18.2",
     "pydantic>=2.11.9",
     "pytest>=8.4.2",
     "ruff>=0.13.2",
 ]
+
+[project.scripts]
+funstall = "funstall.cli:funstall"
