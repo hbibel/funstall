@@ -6,7 +6,6 @@ from funstall.packages import available_packages
 @click.group()
 def funstall():
     pass
-    # raise click.UsageError("No arguments provided")
 
 
 @funstall.command("list")
