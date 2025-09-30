@@ -5,6 +5,31 @@ package managers).
 
 ## Usage
 
+**NOTE** Since this tool currently requires
+[pyenv](https://github.com/pyenv/pyenv) it does not run on Windows.
+
+### Installation
+
+**NOTE** This tool uses [pyenv](https://github.com/pyenv/pyenv) to install
+itself and other software that runs on Python.
+The installer will install pyenv if it is not available.
+
+```nu
+(
+  ^curl
+    --silent
+    --show-error
+    --location
+    https://raw.githubusercontent.com/hbibel/funstall/refs/heads/main/install.nu
+    -o /tmp/install-funstall.nu
+)
+nu /tmp/install-funstall.nu  # Add flags as required
+rm /tmp/install-funstall.nu
+```
+
+A link to the executable will be placed at `~/.local/bin`. Make sure this is
+on your `PATH`.
+
 ### List all available packages
 
 ```sh
