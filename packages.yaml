@@ -1,0 +1,139 @@
+packages:
+  - name: 7zip
+    kind: pacman
+    config:
+      name: 7zip
+  - name: chromium
+    kind: pacman
+    config:
+      name: chromium
+  - name: cups
+    kind: pacman
+    config:
+      name: cups
+  - name: delta
+    kind: pacman
+    config:
+      name: git-delta
+  - name: discord
+    kind: pacman
+    config:
+      name: discord
+  - name: fzf
+    kind: pacman
+    config:
+      name: fzf
+  - name: gimp
+    kind: pacman
+    config:
+      name: gimp
+  - name: imagemagick
+    kind: pacman
+    config:
+      name: imagemagick
+  - name: keepass
+    kind: pacman
+    config:
+      name: keepass
+  - name: nerd-fonts
+    kind: pacman
+    config:
+      name: nerd-fonts
+  - name: neovim
+    kind: pacman
+    config:
+      name: neovim
+    dependencies:
+      - name: wl-clipboard
+        condition:
+          kind: display-server
+          is: wayland
+  - name: networkmanager
+    kind: pacman
+    config:
+      name: networkmanager
+  - name: nfs-utils
+    kind: pacman
+    config:
+      name: nfs-utils
+  - name: noto-fonts-emoji
+    kind: pacman
+    config:
+      name: noto-fonts-emoji
+  - name: nushell
+    kind: pacman
+    config:
+      name: nushell
+  - name: pdftk
+    kind: pacman
+    config:
+      name: pdftk
+  - name: ripgrep
+    kind: pacman
+    config:
+      name: ripgrep
+  - name: samba
+    kind: pacman
+    config:
+      name: samba
+  - name: steam
+    kind: pacman
+    config:
+      name: steam
+  - name: unzip
+    kind: pacman
+    config:
+      name: unzip
+  - name: vim
+    kind: pacman
+    config:
+      name: vim
+  - name: vlc
+    kind: pacman
+    config:
+      name: vlc
+  - name: wezterm
+    kind: pacman
+    config:
+      name: wezterm
+    dependencies:
+      - name: nerd-fonts
+  - name: wget
+    kind: pacman
+    config:
+      name: wget
+  - name: wl-clipboard
+    kind: pacman
+    config:
+      name: wl-clipboard
+  - name: zip
+    kind: pacman
+    config:
+      name: zip
+    dependencies:
+      # also include unzip, which does not come packaged with zip
+      - name: unzip
+        condition:
+          kind: package-manager
+          is: pacman
+
+lists:
+  # base software, should be installed on every system
+  base:
+    - 7zip
+    - chromium
+    - delta
+    - discord
+    - fzf
+    - keepass
+    - nerd-fonts
+    - neovim
+    - noto-fonts-emoji
+    - nushell
+    - ripgrep
+    - vim
+    - vlc
+    - wezterm
+    - wget
+    - zip
+
