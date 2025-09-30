@@ -5,13 +5,9 @@ description = "The fun cross-platform package manager!"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "click>=8.3.0",
-    "isort>=6.0.1",
-    "mypy>=1.18.2",
-    "pydantic>=2.11.9",
-    "pytest>=8.4.2",
-    "pyyaml>=6.0.3",
-    "ruff>=0.13.2",
+  "click>=8.3.0",
+  "pydantic>=2.11.9",
+  "pyyaml>=6.0.3",
 ]
 authors = [
   { name = "Hannes Bibel" },
@@ -43,6 +39,14 @@ Issues = "https://github.com/hbibel/funstall/issues"
 
 [project.scripts]
 funstall = "funstall.cli:funstall"
+
+[dependency-groups]
+dev = [
+  "isort>=6.0.1",
+  "mypy>=1.18.2",
+  "pytest>=8.4.2",
+  "ruff>=0.13.2",
+]
 
 [build-system]
 requires = ["hatchling"]
