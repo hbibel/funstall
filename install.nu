@@ -59,9 +59,9 @@ def install-pyenv [] {
     brew install openssl readline sqlite3 xz tcl-tk libb2 zstd zlib pkgconfig
   } else if (uname | get kernel-name) == "Linux" {
     if (uname | get kernel-release | str contains "arch") {
-      sudo pacman -S pyenv
+      sudo pacman -S --noconfirm pyenv
       # To build Python
-      sudo pacman -S --needed base-devel openssl zlib xz tk zstd
+      sudo pacman -S --noconfirm --needed base-devel openssl zlib xz tk zstd
     } else {
       error make {msg: $"Not implemented yet for distribution (uname | get kernel-release)" } 
     }
