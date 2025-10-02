@@ -1,7 +1,18 @@
 import logging
 import sys
+from typing import TypedDict
 
 from funstall.config import Settings, Verbosity
+
+
+class ApplicationContext(TypedDict):
+    logger: logging.Logger
+    settings: Settings
+
+
+def create_application_context(settings: Settings) -> ApplicationContext:
+    logger = _create_logger(settings)
+    return {"logger": logger, "settings": settings}
 
 
 class _CliFormatter(logging.Formatter):
