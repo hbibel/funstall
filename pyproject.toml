@@ -62,3 +62,6 @@ exclude = [
     "uv.lock",
     ".python-version",
 ]
+
+[tool.mypy]
+plugins = ['pydantic.mypy']
