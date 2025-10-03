@@ -17,6 +17,16 @@ For example, a package installed through system package managers (brew, ...)
 may be moved to a pip-based installer.
 In this scenario, the old package must be removed and reinstalled.
 
+Funstall currently automatically updates itself before installing or updating
+a package.
+This is because in my workflow I would update it anyway and it allows me to
+iterate on the package definition file without much consideration about
+compatibility.
+Consider that for scripts that require more stable behavior this may not be
+desired.
+If I encounter such a use case, I would add a `funstall self update` command
+and add a version to the package file.
+
 The whole update process looks like this:
 
 1. Update funstall itself

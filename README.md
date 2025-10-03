@@ -57,6 +57,8 @@ Therefore I decided to reach for another programming language.
 
 I started this project using Python because I want to avoid writing a GitHub
 action for now to distribute this project across my computers.
+While I quickly realized that I cannot easily get around a build step I stuck
+with Python because I'm most productive with it.
 Generally I prefer compiled languages for CLI applications though so I may
 **rewrite in Rust™** in the future (or in another language).
 
