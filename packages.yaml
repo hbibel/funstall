@@ -116,6 +116,12 @@ packages:
         condition:
           kind: package-manager
           is: pacman
+  - name: zuban
+    kind: pip
+    config:
+      name: zuban
+      python_version: "3.13"
+      executables: [ zuban ]
 
 lists:
   # base software, should be installed on every system

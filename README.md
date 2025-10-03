@@ -1,7 +1,7 @@
 # Funstall
 
-This is my own custom package manager (well, mostly it's a wrapper around other
-package managers).
+This is my own custom software installer (well, mostly it's a wrapper around
+other package managers) that keeps my Linux and Mac machines up-to-date.
 
 ## Usage
 

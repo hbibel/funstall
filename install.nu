@@ -14,6 +14,9 @@ export def main [
     error make { msg: "funstall is already installed and --reinstall was not passed" }
   }
 
+  # TODO reinstall does not remove the old installation if the install_dir has
+  # changed
+
   if (which pyenv | is-empty) {
     install-pyenv
   }

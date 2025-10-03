@@ -7,8 +7,8 @@ from funstall.application_context import (
     create_application_context,
 )
 from funstall.config import Settings
-from funstall.installation.installation import update, update_all
-from funstall.packages import available_packages
+from funstall.installation.installation import install, update, update_all
+from funstall.packages.package_definitions import available_packages
 
 # Command options
 
@@ -19,6 +19,10 @@ def package_name_option(f):
         default=None,
         help="The name of a package",
     )(f)
+
+
+def package_name_argument(f):
+    return click.argument("package")(f)
 
 
 # Options to modify Settings
@@ -44,6 +48,26 @@ def verbosity_option(f):
     )(f)
 
 
+def skip_self_update_option(f):
+    return click.option(
+        "--skip-self-update",
+        is_flag=True,
+        help=("Skip the automatic self update."),
+    )(f)
+
+
+def self_update_strategy_option(f):
+    return click.option(
+        "--self-update-strategy",
+        default=None,
+        help=(
+            "How to run the self update, either 'pypi' (download the latest "
+            "release from pypi) or 'noop' (don't do anything; useful only "
+            "during development)"
+        ),
+    )(f)
+
+
 def with_application_context(f):
     """Adds the application context to a CLI command.
 
@@ -54,16 +78,22 @@ def with_application_context(f):
 
     @package_file_url_option
     @verbosity_option
+    @skip_self_update_option
+    @self_update_strategy_option
     @wraps(f)
     def g(
         *args,
         package_list_url: str | None,
         verbosity: str | None,
+        skip_self_update: bool,
+        self_update_strategy: str | None,
         **kwargs,
     ) -> None:
         settings_kwargs = {
             "package_file_url": package_list_url,
             "verbosity": verbosity,
+            "skip_self_update": skip_self_update,
+            "self_update_strategy": self_update_strategy,
         }
         settings = Settings.model_validate(
             {k: v for k, v in settings_kwargs.items() if v is not None}
@@ -84,7 +114,7 @@ def funstall():
 def list_packages(ctx: ApplicationContext) -> None:
     ctx["logger"].info("Available packages:")
 
-    for p in available_packages():
+    for p in available_packages(ctx["settings"]):
         print(p.name)
 
 
@@ -99,3 +129,13 @@ def update_package(
         update(ctx, package)
     else:
         update_all(ctx)
+
+
+@funstall.command("install")
+@package_name_argument
+@with_application_context
+def install_package(
+    package: str,
+    ctx: ApplicationContext,
+) -> None:
+    install(ctx, package)

@@ -1,6 +1,8 @@
 import os
 import sys
+from logging import Logger
 from pathlib import Path
+from typing import TypedDict
 
 
 def user_data_dir() -> Path:
@@ -39,7 +41,7 @@ def user_config_file_dir() -> Path:
         return Path.home() / ".config" / "funstall"
 
     elif sys.platform == "darwin":
-        return Path.home() / "Library" / "Preferences" / "preferences"
+        return Path.home() / "Library" / "Preferences" / "funstall"
 
     elif sys.platform == "win32":
         return Path.home() / "AppData" / "Local" / "funstall" / "config"
@@ -47,3 +49,29 @@ def user_config_file_dir() -> Path:
     else:
         msg = f"OS / platform {sys.platform} is not supported"
         raise ValueError(msg)
+
+
+class UserBinDirContext(TypedDict):
+    logger: Logger
+
+
+def user_exe_dir() -> Path:
+    """Contains user-installed executables/binaries"""
+
+    if xdg := os.getenv("XDG_BIN_HOME", "").strip():
+        bin_dir = Path(xdg) / "funstall"
+
+    elif sys.platform == "linux":
+        bin_dir = Path.home() / ".local" / "bin"
+
+    elif sys.platform == "darwin":
+        bin_dir = Path.home() / "bin"
+
+    elif sys.platform == "win32":
+        bin_dir = Path.home() / "AppData" / "Local" / "funstall" / "bin"
+
+    else:
+        msg = f"OS / platform {sys.platform} is not supported"
+        raise ValueError(msg)
+
+    return bin_dir

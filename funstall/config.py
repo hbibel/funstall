@@ -19,6 +19,11 @@ class Verbosity(StrEnum):
     DEBUG = "debug"
 
 
+class SelfUpdateStrategy(StrEnum):
+    PYPI = "pypi"
+    NOOP = "noop"
+
+
 class Settings(BaseSettings):
     package_file_url: HttpUrl = HttpUrl(
         "https://raw.githubusercontent.com/"
@@ -28,7 +33,10 @@ class Settings(BaseSettings):
     package_definitions_file: Path = (
         system_paths.user_data_dir() / "packages.yaml"
     )
+    bin_dir: Path = system_paths.user_exe_dir()
     verbosity: Verbosity = Verbosity.INFO
+    skip_self_update: bool = False
+    self_update_strategy: SelfUpdateStrategy = SelfUpdateStrategy.PYPI
 
     model_config = SettingsConfigDict(
         toml_file=system_paths.user_config_file_dir() / "config.toml"
