@@ -7,11 +7,9 @@ from funstall.config import Settings
 from funstall.installation import pip
 from funstall.installation.model import UpdateError
 from funstall.packages import (
-    InvalidPackageFileError,
     Package,
     PipConfig,
     PipPackage,
-    update_package_list,
 )
 
 
