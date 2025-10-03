@@ -46,10 +46,13 @@ def _create_logger(settings: Settings) -> logging.Logger:
     if settings.verbosity == Verbosity.DEBUG:
         level = logging.DEBUG
 
-    logger = logging.getLogger()
+    root = logging.getLogger()
+    # Silence all loggers
+    if root.hasHandlers():
+        root.handlers.clear()
+
+    logger = logging.getLogger("funstall")
     logger.setLevel(level)
-    if logger.hasHandlers():
-        logger.handlers.clear()
 
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(_CliFormatter())
