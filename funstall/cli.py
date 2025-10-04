@@ -109,7 +109,14 @@ def funstall():
     pass
 
 
-@funstall.command("list")
+@funstall.command("config", help="Show the active configuration")
+@with_application_context
+def show_config(ctx: ApplicationContext) -> None:
+    for k, v in ctx["settings"].model_dump().items():
+        print(f"{k} = '{v}'")
+
+
+@funstall.command("list", help="List available packages")
 @with_application_context
 def list_packages(ctx: ApplicationContext) -> None:
     ctx["logger"].info("Available packages:")
