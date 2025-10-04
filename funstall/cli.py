@@ -125,7 +125,7 @@ def list_packages(ctx: ApplicationContext) -> None:
         print(p.name)
 
 
-@funstall.command("update")
+@funstall.command("update", help="Update packages")
 @package_name_option
 @with_application_context
 def update_package(
@@ -138,7 +138,7 @@ def update_package(
         update_all(ctx)
 
 
-@funstall.command("install")
+@funstall.command("install", help="Install a package")
 @package_name_argument
 @with_application_context
 def install_package(
