@@ -47,13 +47,17 @@ def add_installed(ctx: AddInstalledContext, package: Package) -> None:
 
 
 def _installed_packages_file() -> Path:
-    return system_paths.user_data_dir() / "installed.toml"
+    installs_file = system_paths.user_data_dir() / "installed.toml"
+
+    if not installs_file.parent.exists():
+        installs_file.parent.mkdir(parents=True)
+    if not installs_file.exists():
+        installs_file.write_text("installed=[]")
+
+    return installs_file
 
 
 def _load_installs() -> PackageInstalls:
     installs_file = _installed_packages_file()
-    if not installs_file.exists():
-        installs_file.touch(0o664)
-
     content = tomllib.loads(installs_file.read_text())
     return PackageInstalls.model_validate(content)

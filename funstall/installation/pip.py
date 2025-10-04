@@ -68,7 +68,10 @@ def install(
         )
 
     for exe in package.config.executables:
-        os.link(installation_dir / "bin" / exe, exe_dir / exe)
+        src = installation_dir / "bin" / exe
+        dst = exe_dir / exe
+        ctx["logger"].debug("Creating symlink '%s' -> '%s'", src, dst)
+        os.symlink(src, dst)
 
 
 def update(
