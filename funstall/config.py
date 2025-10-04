@@ -1,7 +1,7 @@
 from enum import StrEnum
 from pathlib import Path
 
-from pydantic import HttpUrl
+from pydantic import HttpUrl, field_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
@@ -55,3 +55,14 @@ class Settings(BaseSettings):
             init_settings,
             TomlConfigSettingsSource(settings_cls),
         )
+
+    @field_validator(
+        "base_installation_dir",
+        "package_definitions_file",
+        "bin_dir",
+        mode="before",
+    )
+    @classmethod
+    def resolve_path(cls, value):
+        path_obj = Path(value)
+        return path_obj.expanduser().resolve()
