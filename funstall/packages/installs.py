@@ -8,7 +8,9 @@ from pydantic import BaseModel as _BaseModel
 from pydantic import ConfigDict
 
 from funstall import system_paths
+from funstall.config import Settings
 from funstall.packages.model import Package
+from funstall.packages.package_definitions import get_package
 
 
 class BaseModel(_BaseModel):
@@ -23,14 +25,14 @@ class AddInstalledContext(TypedDict):
     logger: Logger
 
 
-def is_installed(package: Package) -> bool:
-    return package.name in _load_installs().installed
+def is_installed(package_name: str) -> bool:
+    return package_name in _load_installs().installed
 
 
 def add_installed(ctx: AddInstalledContext, package: Package) -> None:
     ctx["logger"].debug("Adding %s to installed packages", package.name)
 
-    if is_installed(package):
+    if is_installed(package.name):
         ctx["logger"].warning(
             (
                 "Package %s is already installed, not adding again to the "
@@ -44,6 +46,31 @@ def add_installed(ctx: AddInstalledContext, package: Package) -> None:
     installs.installed.append(package.name)
     new_content = tomli_w.dumps(installs.model_dump())
     _installed_packages_file().write_text(new_content)
+
+
+class InstalledPackagesContext(TypedDict):
+    logger: Logger
+    settings: Settings
+
+
+def installed_packages(ctx: InstalledPackagesContext) -> list[Package]:
+    logger = ctx["logger"]
+    settings = ctx["settings"]
+
+    packages = []
+    for p in _load_installs().installed:
+        package = get_package(settings, p)
+        if not package:
+            logger.warning(
+                (
+                    "Package %s is installed, but it does not appear to be in "
+                    "the package definition file"
+                ),
+                p,
+            )
+        else:
+            packages.append(package)
+    return packages
 
 
 def _installed_packages_file() -> Path:

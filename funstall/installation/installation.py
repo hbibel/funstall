@@ -7,7 +7,11 @@ from typing import TypedDict
 from funstall.config import SelfUpdateStrategy, Settings
 from funstall.installation import pacman, pip
 from funstall.installation.model import InstallError
-from funstall.packages.installs import add_installed, is_installed
+from funstall.packages.installs import (
+    add_installed,
+    installed_packages,
+    is_installed,
+)
 from funstall.packages.model import (
     Package,
     PackageError,
@@ -35,7 +39,7 @@ def install(ctx: InstallContext, package_name: str) -> None:
         msg = f"Package '{package_name}' not found"
         raise InstallError(msg)
 
-    if is_installed(pkg):
+    if is_installed(pkg.name):
         ctx["logger"].info("Package %s is already installed", pkg.name)
 
     if pkg.kind == "pip":
@@ -51,42 +55,41 @@ class UpdateContext(TypedDict):
     logger: Logger
 
 
-def update(ctx: UpdateContext, package: str) -> None:
+def update(ctx: UpdateContext, package_names: list[str]) -> None:
+    logger = ctx["logger"]
+
     _update_funstall(ctx)
 
-    # TODO we have a chicken-and-egg problem here: If the schema changes,
-    # how can this version of the code validate the new package file?
-    # Maybe relaunch this program with the new file passed as packages
-    # file, and replace the old file in the end
+    # TODO if the source of a package changes in packages.yaml, we should
+    # remove the old package and install the new one. This is a tough nut to
+    # crack because the format of packages.yaml may also change. I will not
+    # handle this edge case for now, but I added a version field in the
+    # packages definition file in preparation.
 
-    # try:
-    #   package_after = packages.get(package_name)
-    # except NoSuchPackage:
-    #   raise PackageDeleted
+    packages: list[Package] = []
+    for name in package_names:
+        pkg = get_package(ctx["settings"], name)
+        if not pkg:
+            logger.warning(
+                (
+                    "Package %s does not exist, it may have been deleted from "
+                    "the package definitions file."
+                ),
+                name,
+            )
+        else:
+            packages.append(pkg)
 
-    # if package_before.kind == package_after.kind
-    #   use same strategy to update
-    # else:
-    #   remove old package
-    #   install new package
+    logger.debug("Updating %d packages", len(packages))
+    for package in packages:
+        _update_package(ctx, package)
 
 
 def update_all(ctx: UpdateContext) -> None:
-    # try:
-    # package_before = packages.get(package_name)
-    # except NoSuchPackage:
-    #   raise PackageNotFound
-
     _update_funstall(ctx)
 
-    # try:
-    #   package_after = packages.get(package_name)
-    # except NoSuchPackage:
-    #   raise PackageDeleted
-
-    # TODO handle packages that have been removed, prompt the user
-    # for p in installed_packages():
-    #     update(p)
+    for package in installed_packages(ctx):
+        _update_package(ctx, package)
 
 
 def _update_funstall(ctx: UpdateContext) -> None:
@@ -157,8 +160,13 @@ def _update_self(ctx: UpdateContext) -> None:
         pip.update(ctx, p, pip_bin=pip_path.__str__())
 
 
-def _update_package(ctx: UpdateContext, package: Package) -> None:
-    ctx["logger"].info("Updating funstall")
+class UpdatePackageContext(TypedDict):
+    logger: Logger
+    settings: Settings
+
+
+def _update_package(ctx: UpdatePackageContext, package: Package) -> None:
     if package.kind == "pip":
-        p: PipPackage = package
-        pip.update(ctx, p)
+        pip.update(ctx, package)
+    elif package.kind == "pacman":
+        pacman.update(ctx, package)

@@ -7,18 +7,12 @@ from funstall.application_context import (
     create_application_context,
 )
 from funstall.config import Settings
+from funstall.custom_click_types import string_list
 from funstall.installation.installation import install, update, update_all
+from funstall.packages.installs import is_installed
 from funstall.packages.package_definitions import available_packages
 
-# Command options
-
-
-def package_name_option(f):
-    return click.option(
-        "--package",
-        default=None,
-        help="The name of a package",
-    )(f)
+# Command options and arguments
 
 
 def package_name_argument(f):
@@ -126,14 +120,37 @@ def list_packages(ctx: ApplicationContext) -> None:
 
 
 @funstall.command("update", help="Update packages")
-@package_name_option
+@click.option(
+    "--install-missing",
+    is_flag=True,
+    help="Install missing packages, if any passed with the --packages option",
+)
+@click.option(
+    "--packages",
+    type=string_list,
+    default=None,
+    help="Packages to update",
+)
 @with_application_context
-def update_package(
-    package: str | None,
+@click.pass_context
+def update_packages(
+    click_context: click.Context,
+    packages: list[str] | None,
+    install_missing: bool,
     ctx: ApplicationContext,
 ) -> None:
-    if package:
-        update(ctx, package)
+    if packages:
+        for package in packages:
+            if not is_installed(package):
+                if install_missing:
+                    install(ctx, package)
+                else:
+                    click_context.fail(
+                        f"Package {package} is marked to be updated, but it "
+                        "is not installed. Pass the --install-missing flag to "
+                        "automatically install missing packages."
+                    )
+        update(ctx, packages)
     else:
         update_all(ctx)
 
