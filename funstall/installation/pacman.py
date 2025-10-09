@@ -5,7 +5,7 @@ from typing import TypedDict
 
 from funstall.config import Settings
 from funstall.installation.model import InstallError
-from funstall.packages.model import PacmanPackage
+from funstall.packages.model import PacmanDef
 from funstall.proc_utils import execute
 
 
@@ -14,9 +14,46 @@ class UpdateContext(TypedDict):
     settings: Settings
 
 
+def install(
+    ctx: UpdateContext,
+    package_name: str,
+    pacman_definition: PacmanDef,
+) -> None:
+    success, exit_code, output = _run_pacman_install(
+        ctx, package_name, pacman_definition
+    )
+
+    if not success:
+        msg = (
+            f"Failed to install {pacman_definition.config.name}, pacman "
+            f"process returned {exit_code}. Process output:\n"
+            f"{indent(output, '    ')}"
+        )
+        raise InstallError(msg)
+
+
+def update(
+    ctx: UpdateContext,
+    package_name: str,
+    pacman_definition: PacmanDef,
+) -> None:
+    success, exit_code, output = _run_pacman_install(
+        ctx, package_name, pacman_definition
+    )
+
+    if not success:
+        msg = (
+            f"Failed to update {pacman_definition.config.name}, pacman "
+            f"process returned {exit_code}. Process output:\n"
+            f"{indent(output, '    ')}"
+        )
+        raise InstallError(msg)
+
+
 def _run_pacman_install(
     ctx: UpdateContext,
-    package: PacmanPackage,
+    package_name: str,
+    pacman_definition: PacmanDef,
 ) -> tuple[bool, int, str]:
     if shutil.which("pacman") is None:
         raise InstallError(
@@ -28,36 +65,6 @@ def _run_pacman_install(
         "pacman",
         "-S",
         "--noconfirm",
-        package.config.name,
+        pacman_definition.config.name,
     ]
     return execute(ctx, cmd)
-
-
-def install(
-    ctx: UpdateContext,
-    package: PacmanPackage,
-) -> None:
-    success, exit_code, output = _run_pacman_install(ctx, package)
-
-    if not success:
-        msg = (
-            f"Failed to install {package.config.name}, pacman process "
-            f"returned {exit_code}. Process output:\n"
-            f"{indent(output, '    ')}"
-        )
-        raise InstallError(msg)
-
-
-def update(
-    ctx: UpdateContext,
-    package: PacmanPackage,
-) -> None:
-    success, exit_code, output = _run_pacman_install(ctx, package)
-
-    if not success:
-        msg = (
-            f"Failed to update {package.config.name}, pacman process "
-            f"returned {exit_code}. Process output:\n"
-            f"{indent(output, '    ')}"
-        )
-        raise InstallError(msg)

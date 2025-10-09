@@ -17,8 +17,13 @@ class BaseModel(_BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class InstalledPackage(BaseModel):
+    name: str
+    source_kind: str
+
+
 class PackageInstalls(BaseModel):
-    installed: list[str]
+    installed: list[InstalledPackage]
 
 
 class AddInstalledContext(TypedDict):
@@ -26,10 +31,14 @@ class AddInstalledContext(TypedDict):
 
 
 def is_installed(package_name: str) -> bool:
-    return package_name in _load_installs().installed
+    return package_name in (p.name for p in _load_installs().installed)
 
 
-def add_installed(ctx: AddInstalledContext, package: Package) -> None:
+def add_installed(
+    ctx: AddInstalledContext,
+    package: Package,
+    source_kind: str,
+) -> None:
     ctx["logger"].debug("Adding %s to installed packages", package.name)
 
     if is_installed(package.name):
@@ -43,7 +52,9 @@ def add_installed(ctx: AddInstalledContext, package: Package) -> None:
         return
 
     installs = _load_installs()
-    installs.installed.append(package.name)
+    installs.installed.append(
+        InstalledPackage(name=package.name, source_kind=source_kind)
+    )
     new_content = tomli_w.dumps(installs.model_dump())
     _installed_packages_file().write_text(new_content)
 
@@ -59,7 +70,7 @@ def installed_packages(ctx: InstalledPackagesContext) -> list[Package]:
 
     packages = []
     for p in _load_installs().installed:
-        package = get_package(settings, p)
+        package = get_package(settings, p.name)
         if not package:
             logger.warning(
                 (
@@ -71,6 +82,17 @@ def installed_packages(ctx: InstalledPackagesContext) -> list[Package]:
         else:
             packages.append(package)
     return packages
+
+
+def get_install_source(package_name: str) -> str | None:
+    return next(
+        (
+            p.source_kind
+            for p in _load_installs().installed
+            if p.name == package_name
+        ),
+        None,
+    )
 
 
 def _installed_packages_file() -> Path:

@@ -9,7 +9,7 @@ def main() -> None:
     packages_file_content = Path("./packages.yaml").read_text()
     data = yaml.safe_load(packages_file_content)
 
-    PackageData.model_validate(data)
+    print(PackageData.model_validate(data))
 
 
 if __name__ == "__main__":

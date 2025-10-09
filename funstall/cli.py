@@ -129,7 +129,10 @@ def list_packages(ctx: ApplicationContext) -> None:
     "--packages",
     type=string_list,
     default=None,
-    help="Packages to update",
+    help=(
+        "Packages to update; pass multiple packages separated by commas, e.g. "
+        "'foo,bar,baz'"
+    ),
 )
 @with_application_context
 @click.pass_context

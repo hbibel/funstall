@@ -30,11 +30,9 @@ rm /tmp/install-funstall.nu
 A link to the executable will be placed at `~/.local/bin`. Make sure this is
 on your `PATH`.
 
-### List all available packages
+### Invokation
 
-```sh
-funstall list
-```
+Run `funstall --help` or `funstall <COMMAND> --help` for usage instructions.
 
 ## Why?
 
@@ -47,6 +45,16 @@ As a side note, I also don't agree with how some AUR packages are implemented,
 so I'm hesitant to use `yay` on Arch.
 Implementing my own installation scripts based on AUR implementations also
 makes me feel safer from supply-chain attacks.
+
+## About Sources
+
+Funstall can pull packages using various other tools, e.g. pip or brew, which
+are called "sources".
+Generally the source closest to the original developer's control is selected,
+e.g. PyPI or NPM are usually more directly managed by the developers, and thus
+tend to be more up-to-date.
+The preferred order of sources is implemented in
+`funstall/installation/source_priorities.py`.
 
 ## Implementation Considerations
 

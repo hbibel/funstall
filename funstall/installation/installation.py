@@ -7,16 +7,19 @@ from typing import TypedDict
 from funstall.config import SelfUpdateStrategy, Settings
 from funstall.installation import pacman, pip
 from funstall.installation.model import InstallError
+from funstall.installation.source_priorities import select_preferred_source
 from funstall.packages.installs import (
     add_installed,
+    get_install_source,
     installed_packages,
     is_installed,
 )
 from funstall.packages.model import (
     Package,
     PackageError,
+    PackageSource,
     PipConfig,
-    PipPackage,
+    PipDef,
 )
 from funstall.packages.package_definitions import (
     get_package,
@@ -42,12 +45,17 @@ def install(ctx: InstallContext, package_name: str) -> None:
     if is_installed(pkg.name):
         ctx["logger"].info("Package %s is already installed", pkg.name)
 
-    if pkg.kind == "pip":
-        pip.install(ctx, pkg)
-    elif pkg.kind == "pacman":
-        pacman.install(ctx, pkg)
+    source = select_preferred_source(ctx, pkg)
+    if not source:
+        msg = f"No available source for '{package_name}' on this system"
+        raise InstallError(msg)
+    if source.kind == "pip":
+        pip.install(ctx, pkg.name, source)
+    elif source.kind == "pacman":
+        pacman.install(ctx, pkg.name, source)
+    # TODO brew
 
-    add_installed(ctx, pkg)
+    add_installed(ctx, pkg, source.kind)
 
 
 class UpdateContext(TypedDict):
@@ -148,8 +156,7 @@ def _update_self(ctx: UpdateContext) -> None:
             "funstall is installed at %s", str(pip_path.parent.parent)
         )
 
-        p = PipPackage(
-            name="funstall",
+        p = PipDef(
             kind="pip",
             config=PipConfig(
                 name="funstall",
@@ -157,7 +164,7 @@ def _update_self(ctx: UpdateContext) -> None:
                 executables=["funstall"],
             ),
         )
-        pip.update(ctx, p, pip_bin=pip_path.__str__())
+        pip.update(ctx, "funstall", p, pip_bin=pip_path.__str__())
 
 
 class UpdatePackageContext(TypedDict):
@@ -166,7 +173,29 @@ class UpdatePackageContext(TypedDict):
 
 
 def _update_package(ctx: UpdatePackageContext, package: Package) -> None:
-    if package.kind == "pip":
-        pip.update(ctx, package)
-    elif package.kind == "pacman":
-        pacman.update(ctx, package)
+    installed_from_source = get_install_source(package.name)
+    if not installed_from_source:
+        msg = (
+            "Could not determine installation source for package "
+            f"{package.name}. Has this package been installed?"
+        )
+        raise InstallError(msg)
+
+    source_def = next(
+        (s for s in package.sources if s.kind == installed_from_source),
+        None,
+    )
+    if not source_def:
+        msg = (
+            f"Package {package.name} has been installed via "
+            f"{installed_from_source}, but installation via "
+            f"{installed_from_source} is not available anymore. "
+            "Try re-installing the package."
+        )
+        raise InstallError(msg)
+
+    if source_def.kind == "pip":
+        pip.update(ctx, package.name, source_def)
+    elif source_def.kind == "pacman":
+        pacman.update(ctx, package.name, source_def)
+    # TODO brew
