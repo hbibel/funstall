@@ -1,7 +1,7 @@
 import shutil
-import tempfile
 from logging import Logger
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from textwrap import indent
 from typing import Protocol, TypedDict
 
@@ -56,20 +56,25 @@ def _install_or_update(
 
     update_script_config = nu_definition.config.update
 
-    script = _download_script(ctx, update_script_config)
+    with TemporaryDirectory() as script_dir:
+        script = _download_script(
+            {"logger": ctx["logger"], "target_dir": Path(script_dir)},
+            update_script_config,
+        )
 
-    if update_script_config.elevated_priviliges:
-        cmd = ["sudo", "nu"]
-    else:
-        cmd = ["nu"]
-    cmd.append(script.resolve().__str__())
+        if update_script_config.elevated_priviliges:
+            cmd = ["sudo", "nu"]
+        else:
+            cmd = ["nu"]
+        cmd.append(script.resolve().__str__())
 
-    success, _, output = execute(ctx, cmd)
+        success, _, output = execute(ctx, cmd)
     return success, output
 
 
 class _DlContext(TypedDict):
     logger: Logger
+    target_dir: Path
 
 
 class _HasSourceFile(Protocol):
@@ -77,7 +82,7 @@ class _HasSourceFile(Protocol):
 
 
 def _download_script(ctx: _DlContext, conf: _HasSourceFile) -> Path:
-    dl_path = Path(tempfile.mkdtemp()) / conf.source_file.name
+    dl_path = ctx["target_dir"] / conf.source_file.name
     ctx["logger"].debug("Downloading installations script to %s", dl_path)
 
     url = _BASE_URL + str(conf.source_file)
