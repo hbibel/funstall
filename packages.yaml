@@ -87,6 +87,15 @@ packages:
       - kind: pacman
         config:
           name: nfs-utils
+  - name: nix
+    sources:
+      - kind: nushell-script
+        config:
+          installation:
+            source_file: packages/nix/install.nu
+          update:
+            source_file: packages/nix/update.nu
+            elevated_priviliges: true
   - name: noto-fonts-emoji
     sources:
       - kind: pacman
