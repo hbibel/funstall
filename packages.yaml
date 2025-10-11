@@ -26,6 +26,22 @@ packages:
       - kind: pacman
         config:
           name: discord
+  - name: edge
+    sources:
+      - kind: nushell-script
+        config:
+          installation:
+            source_file: packages/edge/install-or-update.nu
+            elevated_priviliges: true
+          update:
+            source_file: packages/edge/install-or-update.nu
+            elevated_priviliges: true
+        condition:
+          # This script uses pacman internally for dependencies; apart from
+          # that it could work on other platforms as well. This would need to
+          # be tested.
+          kind: package-manager
+          is: pacman
   - name: fzf
     sources:
       - kind: pacman

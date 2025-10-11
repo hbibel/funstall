@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Annotated, Literal
 
 from pydantic import BaseModel as _BaseModel
@@ -25,11 +26,15 @@ class Package(BaseModel):
 
 
 type PackageSource = Annotated[
-    PacmanDef | PipDef | BrewDef, Field(discriminator="kind")
+    PacmanDef | PipDef | BrewDef | NuDef, Field(discriminator="kind")
 ]
 
 
-class PipDef(BaseModel):
+class BaseSource(BaseModel):
+    condition: Condition | None = None
+
+
+class PipDef(BaseSource):
     kind: Literal["pip"]
     config: PipConfig
 
@@ -40,7 +45,7 @@ class PipConfig(BaseModel):
     executables: list[str]
 
 
-class PacmanDef(BaseModel):
+class PacmanDef(BaseSource):
     kind: Literal["pacman"]
     config: PacmanConfig
 
@@ -49,20 +54,33 @@ class PacmanConfig(BaseModel):
     name: str
 
 
-class BrewDef(BaseModel):
+class BrewDef(BaseSource):
     kind: Literal["brew"]
-    config: PacmanConfig
+    config: BrewConfig
 
 
 class BrewConfig(BaseModel):
     name: str
 
 
+class NuDef(BaseSource):
+    kind: Literal["nushell-script"]
+    config: NuConfig
+
+
+class NuConfig(BaseModel):
+    installation: ScriptConfig
+    update: ScriptConfig
+
+
+class ScriptConfig(BaseModel):
+    elevated_priviliges: bool = False
+    source_file: Path
+
+
 class Dependency(BaseModel):
     name: str
-    condition: DisplayServerCondition | PackageManagerCondition | None = Field(
-        discriminator="kind", default=None
-    )
+    condition: Condition | None = None
 
 
 class PackageManagerCondition(BaseModel):
@@ -73,6 +91,12 @@ class PackageManagerCondition(BaseModel):
 class DisplayServerCondition(BaseModel):
     kind: Literal["display-server"]
     is_: str = Field(alias="is")
+
+
+type Condition = Annotated[
+    PackageManagerCondition | DisplayServerCondition,
+    Field(discriminator="kind"),
+]
 
 
 class PackageError(Exception):

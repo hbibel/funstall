@@ -46,6 +46,10 @@ def _pip_available() -> bool:
     return which("pyenv") is not None
 
 
+def _nushell_available() -> bool:
+    return which("nu") is not None
+
+
 @dataclass(frozen=True)
 class _Source:
     kind: str
@@ -55,6 +59,7 @@ class _Source:
 # The first source supported by the system will be selected
 _PREFERRED = [
     _Source("pip", _pip_available),
+    _Source("nushell-script", _nushell_available),
     # System package managers usually wrap other tools like pip or npm, so
     # prefer the latter
     _Source("pacman", _pacman_available),
