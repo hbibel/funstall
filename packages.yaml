@@ -163,6 +163,11 @@ packages:
       - kind: pacman
         config:
           name: zip
+  - name: zsh
+    sources:
+      - kind: pacman
+        config:
+          name: zsh
   - name: zuban
     sources:
       - kind: pip
