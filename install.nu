@@ -49,7 +49,7 @@ export def main [
   ^$python_bin -m venv $install_dir
   ^($install_dir | path join "bin/pip") install funstall
 
-  ln -s ($install_dir | path join "bin/funstall") ($env.HOME | path join "/.local/bin/funstall")
+  ln -s ($install_dir | path join "bin/funstall") ($env.HOME | path join ".local/bin/funstall")
 }
 
 def install-pyenv [] {
