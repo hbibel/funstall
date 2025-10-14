@@ -57,11 +57,25 @@ packages:
       - kind: pacman
         config:
           name: imagemagick
+  - name: joplin
+    sources:
+      - kind: nushell-script
+          installation:
+            source_file: packages/joplin/install-or-update.nu
+          update:
+            source_file: packages/joplin/install-or-update.nu
+    dependencies:
+      - name: libfuse2
   - name: keepass
     sources:
       - kind: pacman
         config:
           name: keepass
+  - name: libfuse2
+    sources:
+      - kind: pacman
+        config:
+          name: fuse2
   - name: nerd-fonts
     sources:
       - kind: pacman
@@ -175,4 +189,3 @@ packages:
           name: zuban
           python_version: "3.13"
           executables: [ zuban ]
-
