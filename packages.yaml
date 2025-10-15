@@ -149,6 +149,14 @@ packages:
       - kind: pacman
         config:
           name: steam
+  - name: ts-ls
+    sources:
+      - kind: npm
+        config:
+          name: typescript-language-server
+          additional_packages: [ typescript ]
+          node_version: "22"
+          executables: ["typescript-language-server"]
   - name: unzip
     sources:
       - kind: pacman
