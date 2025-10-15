@@ -24,7 +24,6 @@ from funstall.packages.package_definitions import (
     get_package,
     update_package_definitions,
 )
-from funstall.system_paths import warn_if_exe_dir_not_on_path
 
 
 class InstallContext(TypedDict):
@@ -34,7 +33,7 @@ class InstallContext(TypedDict):
 
 def install(ctx: InstallContext, package_name: str) -> None:
     _update_funstall(ctx)
-    warn_if_exe_dir_not_on_path(ctx)
+    _warn_if_exe_dir_not_on_path(ctx)
 
     ctx["settings"].base_installation_dir.mkdir(parents=True, exist_ok=True)
 
@@ -215,3 +214,26 @@ def _update_package(ctx: UpdatePackageContext, package: Package) -> None:
     elif source_def.kind == "nushell-script":
         nushell.update(ctx, package.name, source_def)
     # TODO brew
+
+
+class _WarnIfExeNotOnPathCtx(TypedDict):
+    logger: Logger
+    settings: Settings
+
+
+def _warn_if_exe_dir_not_on_path(ctx: _WarnIfExeNotOnPathCtx) -> None:
+    bin_dir = ctx["settings"].bin_dir
+    if os_path := os.environ.get("PATH"):
+        on_path = False
+        d = str(bin_dir.resolve())
+        for p in os_path.split(os.pathsep):
+            if str(Path(p).resolve()) == d:
+                on_path = True
+                break
+
+        if not on_path:
+            ctx["logger"].warning(
+                f"The user binary directory '{d}' is not found in the "
+                "system's PATH. You may need to add it manually to run "
+                "executables installed here."
+            )

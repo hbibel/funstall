@@ -61,7 +61,7 @@ def install(
 
     for exe in pip_definition.config.executables:
         src = installation_dir / "bin" / exe
-        dst = user_exe_dir() / exe
+        dst = ctx["settings"].bin_dir / exe
         ctx["logger"].debug("Creating symlink '%s' -> '%s'", src, dst)
         os.symlink(src, dst)
 
