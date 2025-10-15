@@ -41,13 +41,12 @@ def _brew_available() -> bool:
     return which("brew") is not None
 
 
-def _pip_available() -> bool:
-    # pip is installed via pyenv
-    return which("pyenv") is not None
-
-
 def _nushell_available() -> bool:
     return which("nu") is not None
+
+
+def _always():
+    return True
 
 
 @dataclass(frozen=True)
@@ -58,7 +57,8 @@ class _Source:
 
 # The first source supported by the system will be selected
 _PREFERRED = [
-    _Source("pip", _pip_available),
+    _Source("pip", _always),
+    _Source("npm", _always),
     _Source("nushell-script", _nushell_available),
     # System package managers usually wrap other tools like pip or npm, so
     # prefer the latter

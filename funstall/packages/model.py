@@ -26,7 +26,7 @@ class Package(BaseModel):
 
 
 type PackageSource = Annotated[
-    PacmanDef | PipDef | BrewDef | NuDef, Field(discriminator="kind")
+    PacmanDef | PipDef | NpmDef | BrewDef | NuDef, Field(discriminator="kind")
 ]
 
 
@@ -42,6 +42,18 @@ class PipDef(BaseSource):
 class PipConfig(BaseModel):
     name: str
     python_version: str
+    executables: list[str]
+
+
+class NpmDef(BaseSource):
+    kind: Literal["npm"]
+    config: NpmConfig
+
+
+class NpmConfig(BaseModel):
+    name: str
+    node_version: str
+    additional_packages: list[str] | None
     executables: list[str]
 
 

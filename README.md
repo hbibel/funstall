@@ -34,6 +34,10 @@ on your `PATH`.
 
 Run `funstall --help` or `funstall <COMMAND> --help` for usage instructions.
 
+When software running on Node.js is installed, funstall will use
+[fnm](https://github.com/Schniz/fnm) to install a suitable Node.js version.
+If fnm is not installed or not on the `PATH`, funstall will install it.
+
 ## Why?
 
 I use multiple operating systems on multiple machines, requiring me to switch

@@ -42,6 +42,14 @@ packages:
           # be tested.
           kind: package-manager
           is: pacman
+  - name: fnm
+    sources:
+      - kind: nushell-script
+        config:
+          installation:
+            source_file: packages/fnm/install.nu
+          update:
+            source_file: packages/fnm/update.nu
   - name: fzf
     sources:
       - kind: pacman

@@ -71,24 +71,3 @@ def user_exe_dir() -> Path:
         raise ValueError(msg)
 
     return bin_dir
-
-
-class _WarnIfExeNotOnPathCtx(TypedDict):
-    logger: Logger
-
-
-def warn_if_exe_dir_not_on_path(ctx: _WarnIfExeNotOnPathCtx) -> None:
-    if os_path := os.environ.get("PATH"):
-        on_path = False
-        d = str(user_exe_dir().resolve())
-        for p in os_path.split(os.pathsep):
-            if str(Path(p).resolve()) == d:
-                on_path = True
-                break
-
-        if not on_path:
-            ctx["logger"].warning(
-                f"The user binary directory '{d}' is not found in the "
-                "system's PATH. You may need to add it manually to run "
-                "executables installed here."
-            )
