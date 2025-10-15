@@ -129,7 +129,10 @@ def _update_funstall(ctx: UpdateContext) -> None:
     # If the self-update was not successful, we don't need to fail the
     # entire program, but we should not update the package list in case the
     # format has changed and our current version cannot handle the new format.
-    if self_update_successful:
+    if (
+        self_update_successful
+        and not ctx["settings"].skip_package_definitions_file_download
+    ):
         ctx["logger"].info("Updating package list ...")
         try:
             update_package_definitions(ctx["settings"])
@@ -141,6 +144,12 @@ def _update_funstall(ctx: UpdateContext) -> None:
                 "version is not compatible with the old package list."
             )
             ctx["logger"].debug("Cause: %s", e)
+    else:
+        if not self_update_successful:
+            ctx["logger"].debug("Self update not successful")
+        if ctx["settings"].skip_package_definitions_file_download:
+            ctx["logger"].debug("Set to skip package file download")
+        ctx["logger"].debug("Skipping package definitions file download")
 
 
 def _update_self(ctx: UpdateContext) -> None:

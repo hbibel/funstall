@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     package_definitions_file: Path = (
         system_paths.user_data_dir() / "packages.yaml"
     )
+    skip_package_definitions_file_download: bool = False
     bin_dir: Path = system_paths.user_exe_dir()
     verbosity: Verbosity = Verbosity.INFO
     skip_self_update: bool = False

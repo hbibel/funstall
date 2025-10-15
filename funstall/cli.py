@@ -62,6 +62,17 @@ def self_update_strategy_option(f):
     )(f)
 
 
+def package_file_option(f):
+    return click.option(
+        "--package-file",
+        default=None,
+        help=(
+            "Path to a custom packages.yaml file to use instead of "
+            "downloading the latest one from the repository."
+        ),
+    )(f)
+
+
 def with_application_context(f):
     """Adds the application context to a CLI command.
 
@@ -74,6 +85,7 @@ def with_application_context(f):
     @verbosity_option
     @skip_self_update_option
     @self_update_strategy_option
+    @package_file_option
     @wraps(f)
     def g(
         *args,
@@ -81,6 +93,7 @@ def with_application_context(f):
         verbosity: str | None,
         skip_self_update: bool,
         self_update_strategy: str | None,
+        package_file: str | None,
         **kwargs,
     ) -> None:
         settings_kwargs = {
@@ -89,6 +102,11 @@ def with_application_context(f):
             "skip_self_update": skip_self_update,
             "self_update_strategy": self_update_strategy,
         }
+        if package_file:
+            settings_kwargs |= {
+                "package_definitions_file": package_file,
+                "skip_package_definitions_file_download": True,
+            }
         settings = Settings.model_validate(
             {k: v for k, v in settings_kwargs.items() if v is not None}
         )
