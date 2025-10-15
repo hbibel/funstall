@@ -60,6 +60,7 @@ packages:
   - name: joplin
     sources:
       - kind: nushell-script
+        config:
           installation:
             source_file: packages/joplin/install-or-update.nu
           update:

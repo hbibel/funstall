@@ -34,6 +34,8 @@ class InstallContext(TypedDict):
 def install(ctx: InstallContext, package_name: str) -> None:
     _update_funstall(ctx)
 
+    ctx["settings"].base_installation_dir.mkdir(parents=True, exist_ok=True)
+
     ctx["logger"].info("Installing package '%s'", package_name)
 
     pkg = get_package(ctx["settings"], package_name)
