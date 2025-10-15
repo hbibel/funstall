@@ -51,11 +51,11 @@ def user_config_file_dir() -> Path:
         raise ValueError(msg)
 
 
-class UserBinDirContext(TypedDict):
+class _UserExeDirContext(TypedDict):
     logger: Logger
 
 
-def user_exe_dir() -> Path:
+def user_exe_dir(ctx: _UserExeDirContext) -> Path:
     """Contains user-installed executables/binaries"""
 
     if xdg := os.getenv("XDG_BIN_HOME", "").strip():
@@ -73,5 +73,19 @@ def user_exe_dir() -> Path:
     else:
         msg = f"OS / platform {sys.platform} is not supported"
         raise ValueError(msg)
+
+    if os_path := os.environ.get("PATH"):
+        on_path = False
+        d = str(bin_dir.resolve())
+        for p in os_path.split(os.pathsep):
+            if str(Path(p).resolve()) == d:
+                on_path = True
+
+        if not on_path:
+            ctx["logger"].warning(
+                f"The user binary directory '{d}' is not found in the "
+                "system's PATH. You may need to add it manually to run "
+                "executables installed here."
+            )
 
     return bin_dir

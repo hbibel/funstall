@@ -1,17 +1,16 @@
 import os
 import shutil
 from logging import Logger
-from pathlib import Path
 from textwrap import indent
 from typing import TypedDict
 
 from packaging.version import InvalidVersion, Version
 
-from funstall import system_paths
 from funstall.config import Settings
 from funstall.installation.model import InstallError
 from funstall.packages.model import PipDef
 from funstall.proc_utils import execute
+from funstall.system_paths import user_exe_dir
 
 
 class UpdateContext(TypedDict):
@@ -60,17 +59,9 @@ def install(
         """
         raise InstallError(msg)
 
-    exe_dir = system_paths.user_exe_dir()
-    if not _is_dir_on_path(exe_dir):
-        ctx["logger"].warning(
-            f"The user binary directory '{exe_dir}' is not found in the "
-            "system's PATH. You may need to add it manually to run "
-            "executables installed here."
-        )
-
     for exe in pip_definition.config.executables:
         src = installation_dir / "bin" / exe
-        dst = exe_dir / exe
+        dst = user_exe_dir(ctx) / exe
         ctx["logger"].debug("Creating symlink '%s' -> '%s'", src, dst)
         os.symlink(src, dst)
 
@@ -157,15 +148,3 @@ def _install_python(ctx: LoggerContext, version_specifier: str) -> str:
         )
         raise InstallError(msg)
     return output
-
-
-def _is_dir_on_path(directory: Path) -> bool:
-    if not os.environ.get("PATH"):
-        return False
-
-    d = str(directory.resolve())
-    for p in os.environ["PATH"].split(os.pathsep):
-        if str(Path(p).resolve()) == d:
-            return True
-
-    return False
