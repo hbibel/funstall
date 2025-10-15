@@ -51,11 +51,7 @@ def user_config_file_dir() -> Path:
         raise ValueError(msg)
 
 
-class _UserExeDirContext(TypedDict):
-    logger: Logger
-
-
-def user_exe_dir(ctx: _UserExeDirContext) -> Path:
+def user_exe_dir() -> Path:
     """Contains user-installed executables/binaries"""
 
     if xdg := os.getenv("XDG_BIN_HOME", "").strip():
@@ -74,12 +70,21 @@ def user_exe_dir(ctx: _UserExeDirContext) -> Path:
         msg = f"OS / platform {sys.platform} is not supported"
         raise ValueError(msg)
 
+    return bin_dir
+
+
+class _WarnIfExeNotOnPathCtx(TypedDict):
+    logger: Logger
+
+
+def warn_if_exe_dir_not_on_path(ctx: _WarnIfExeNotOnPathCtx) -> None:
     if os_path := os.environ.get("PATH"):
         on_path = False
-        d = str(bin_dir.resolve())
+        d = str(user_exe_dir().resolve())
         for p in os_path.split(os.pathsep):
             if str(Path(p).resolve()) == d:
                 on_path = True
+                break
 
         if not on_path:
             ctx["logger"].warning(
@@ -87,5 +92,3 @@ def user_exe_dir(ctx: _UserExeDirContext) -> Path:
                 "system's PATH. You may need to add it manually to run "
                 "executables installed here."
             )
-
-    return bin_dir

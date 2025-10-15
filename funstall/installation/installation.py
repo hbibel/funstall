@@ -24,6 +24,7 @@ from funstall.packages.package_definitions import (
     get_package,
     update_package_definitions,
 )
+from funstall.system_paths import warn_if_exe_dir_not_on_path
 
 
 class InstallContext(TypedDict):
@@ -33,6 +34,7 @@ class InstallContext(TypedDict):
 
 def install(ctx: InstallContext, package_name: str) -> None:
     _update_funstall(ctx)
+    warn_if_exe_dir_not_on_path(ctx)
 
     ctx["settings"].base_installation_dir.mkdir(parents=True, exist_ok=True)
 
