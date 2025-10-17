@@ -55,6 +55,13 @@ packages:
       - kind: pacman
         config:
           name: fzf
+  - name: gemini-cli
+    sources:
+      - kind: npm
+        config:
+          name: "@google/gemini-cli"
+          node_version: "22"
+          executables: ["gemini"]
   - name: gimp
     sources:
       - kind: pacman
