@@ -53,8 +53,8 @@ class NpmDef(BaseSource):
 class NpmConfig(BaseModel):
     name: str
     node_version: str
-    additional_packages: list[str] | None
     executables: list[str]
+    additional_packages: list[str] | None = None
 
 
 class PacmanDef(BaseSource):
