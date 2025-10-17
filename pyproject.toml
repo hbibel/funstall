@@ -1,6 +1,6 @@
 [project]
 name = "funstall"
-version = "0.1.6"
+version = "0.1.7dev1"
 description = "The fun cross-platform package manager!"
 readme = "README.md"
 requires-python = ">=3.13"
