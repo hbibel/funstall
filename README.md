@@ -82,6 +82,6 @@ First create a PyPI API key with access to the repository.
 Then save it in `.pypi-token.secret`.
 
 ```sh
-uv build --sdist
+uv build
 uv publish --token $(cat .pypi-token.secret)
 ```

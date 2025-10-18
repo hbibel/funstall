@@ -10,7 +10,6 @@ from funstall.config import Settings
 from funstall.installation.model import InstallError
 from funstall.packages.model import PipDef
 from funstall.proc_utils import execute
-from funstall.system_paths import user_exe_dir
 
 
 class UpdateContext(TypedDict):

@@ -90,21 +90,25 @@ def _install_package(
     installation_dir: Path,
     npm_definition: NpmDef,
 ) -> None:
-    npm_cmd = (installation_dir / "node" / "bin" / "npm").resolve().__str__()
-
     packages = [
         npm_definition.config.name,
         *(npm_definition.config.additional_packages or []),
     ]
-    execute(
+    success, exit_code, output = execute(
         ctx,
         [
-            npm_cmd,
+            *_npm_cmd(installation_dir),
             "add",
             *packages,
         ],
         working_dir=installation_dir,
     )
+    if not success:
+        msg = (
+            f"NPM install for package {npm_definition.config.name} failed:\n"
+            f"{indent(output, '    ')}"
+        )
+        raise InstallError(msg)
 
     for exe in npm_definition.config.executables:
         src = installation_dir / "node_modules" / ".bin" / exe
@@ -125,18 +129,37 @@ def update(
 ) -> None:
     installation_dir = ctx["settings"].base_installation_dir / package_name
 
-    npm_cmd = (installation_dir / "node" / "bin" / "npm").resolve().__str__()
-
     packages = [
         npm_definition.config.name,
         *(npm_definition.config.additional_packages or []),
     ]
-    execute(
+    success, exit_code, output = execute(
         ctx,
         [
-            npm_cmd,
+            *_npm_cmd(installation_dir),
             "update",
             *packages,
         ],
         working_dir=installation_dir,
     )
+    if not success:
+        msg = (
+            f"NPM update for package {npm_definition.config.name} failed:\n"
+            f"{indent(output, '    ')}"
+        )
+        raise InstallError(msg)
+
+
+def _npm_cmd(installation_dir: Path) -> list[str]:
+    return [
+        p.resolve().__str__()
+        for p in (
+            installation_dir / "node" / "bin" / "node",
+            installation_dir
+            / "node"
+            / "lib"
+            / "node_modules"
+            / "npm"
+            / "index.js",
+        )
+    ]

@@ -24,4 +24,4 @@ def execute(
     )
     output = done.stdout.decode(errors="ignore")
     ctx["logger"].debug("output:\n%s", indent(output, "    "))
-    return (True, done.returncode == 0, output)
+    return (done.returncode == 0, done.returncode, output)
