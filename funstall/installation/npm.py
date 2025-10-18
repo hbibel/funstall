@@ -1,5 +1,6 @@
 import os
 import shutil
+import stat
 from logging import Logger
 from pathlib import Path
 from textwrap import indent
@@ -94,14 +95,17 @@ def _install_package(
         npm_definition.config.name,
         *(npm_definition.config.additional_packages or []),
     ]
+
+    npm_cmd, env = _npm_cmd_and_env(installation_dir)
     success, exit_code, output = execute(
         ctx,
         [
-            *_npm_cmd(installation_dir),
+            npm_cmd,
             "add",
             *packages,
         ],
         working_dir=installation_dir,
+        env=env,
     )
     if not success:
         msg = (
@@ -111,10 +115,38 @@ def _install_package(
         raise InstallError(msg)
 
     for exe in npm_definition.config.executables:
-        src = installation_dir / "node_modules" / ".bin" / exe
-        dst = ctx["settings"].bin_dir / exe
-        ctx["logger"].debug("Creating symlink '%s' -> '%s'", src, dst)
-        os.symlink(src, dst)
+        _create_launch_script(
+            ctx["settings"].bin_dir / exe, installation_dir, exe
+        )
+
+
+def _create_launch_script(
+    script_path: Path, installation_dir: Path, executable: str
+) -> None:
+    # Executables from npm packages usually are node scripts, with a
+    # `#!/usr/bin/env node` statement on top, so the right node version
+    # needs to be on PATH. Hence we create this wrapper script instead of just
+    # linking the executable
+    add_path = os.pathsep.join(
+        str(p)
+        for p in (
+            installation_dir / "node_modules" / ".bin",
+            installation_dir / "node" / "bin",
+        )
+    )
+    executable_path = installation_dir / "node_modules" / ".bin" / executable
+    script = "\n".join(
+        [
+            "#!/bin/sh",
+            "",
+            f"PATH=$PATH{os.pathsep}{add_path} {executable_path}",
+        ]
+    )
+    script_path.write_text(script)
+
+    current_mode = os.stat(script_path).st_mode
+    new_mode = current_mode | stat.S_IXUSR | stat.S_IXGRP
+    os.chmod(script_path, new_mode)
 
 
 class _UpdateContext(TypedDict):
@@ -133,14 +165,16 @@ def update(
         npm_definition.config.name,
         *(npm_definition.config.additional_packages or []),
     ]
+    npm_cmd, env = _npm_cmd_and_env(installation_dir)
     success, exit_code, output = execute(
         ctx,
         [
-            *_npm_cmd(installation_dir),
+            npm_cmd,
             "update",
             *packages,
         ],
         working_dir=installation_dir,
+        env=env,
     )
     if not success:
         msg = (
@@ -150,16 +184,13 @@ def update(
         raise InstallError(msg)
 
 
-def _npm_cmd(installation_dir: Path) -> list[str]:
-    return [
-        p.resolve().__str__()
-        for p in (
-            installation_dir / "node" / "bin" / "node",
-            installation_dir
-            / "node"
-            / "lib"
-            / "node_modules"
-            / "npm"
-            / "index.js",
-        )
-    ]
+def _npm_cmd_and_env(installation_dir: Path) -> tuple[str, dict[str, str]]:
+    path_with_node = (
+        os.getenv("PATH", "")
+        + os.pathsep
+        + (installation_dir / "node" / "bin").resolve().__str__()
+    )
+    return (
+        (installation_dir / "node" / "bin" / "npm").__str__(),
+        {"PATH": path_with_node},
+    )

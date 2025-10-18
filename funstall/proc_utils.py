@@ -14,6 +14,7 @@ def execute(
     cmd: list[str],
     *,
     working_dir: Path | None = None,
+    env: dict[str, str] | None = None,
 ) -> tuple[bool, int, str]:
     ctx["logger"].debug("Invoking `%s`", " ".join(cmd))
     done = subprocess.run(
@@ -21,6 +22,7 @@ def execute(
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         cwd=working_dir,
+        env=env,
     )
     output = done.stdout.decode(errors="ignore")
     ctx["logger"].debug("output:\n%s", indent(output, "    "))
