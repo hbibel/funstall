@@ -45,11 +45,11 @@ packages:
   - name: fnm
     sources:
       - kind: nushell-script
+        dependencies:
+          - unzip
         config:
           installation:
             source_file: packages/fnm/install.nu
-            dependencies:
-              - unzip
           update:
             source_file: packages/fnm/update.nu
   - name: fzf

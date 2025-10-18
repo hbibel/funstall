@@ -32,6 +32,7 @@ type PackageSource = Annotated[
 
 class BaseSource(BaseModel):
     condition: Condition | None = None
+    dependencies: list[str] | None = None
 
 
 class PipDef(BaseSource):
