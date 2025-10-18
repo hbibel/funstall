@@ -74,6 +74,7 @@ class BrewDef(BaseSource):
 
 class BrewConfig(BaseModel):
     name: str
+    cask: bool = False
 
 
 class NuDef(BaseSource):

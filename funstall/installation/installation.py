@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TypedDict
 
 from funstall.config import SelfUpdateStrategy, Settings
-from funstall.installation import npm, nushell, pacman, pip
+from funstall.installation import npm, nushell, pacman, pip, brew
 from funstall.installation.model import InstallError
 from funstall.installation.source_priorities import select_preferred_source
 from funstall.packages.installs import (
@@ -61,7 +61,8 @@ def install(ctx: InstallContext, package_name: str) -> None:
         pacman.install(ctx, pkg.name, source)
     elif source.kind == "nushell-script":
         nushell.install(ctx, pkg.name, source)
-    # TODO brew
+    elif source.kind == "brew":
+        brew.install(ctx, pkg.name, source)
 
     add_installed(ctx, pkg, source.kind)
 
@@ -219,7 +220,8 @@ def _update_package(ctx: UpdatePackageContext, package: Package) -> None:
         pacman.update(ctx, package.name, source_def)
     elif source_def.kind == "nushell-script":
         nushell.update(ctx, package.name, source_def)
-    # TODO brew
+    elif source_def.kind == "brew":
+        brew.update(ctx, package.name, source_def)
 
 
 def _ensure_fnm(ctx: InstallContext) -> None:

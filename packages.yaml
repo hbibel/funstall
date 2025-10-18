@@ -6,6 +6,9 @@ packages:
       - kind: pacman
         config:
           name: 7zip
+      - kind: brew
+        config:
+          name: p7zip
   - name: chromium
     sources:
       - kind: pacman
@@ -21,11 +24,18 @@ packages:
       - kind: pacman
         config:
           name: git-delta
+      - kind: brew
+        config:
+          name: git-delta
   - name: discord
     sources:
       - kind: pacman
         config:
           name: discord
+      - kind: brew
+        config:
+          name: discord
+          cask: true
   - name: edge
     sources:
       - kind: nushell-script
@@ -42,6 +52,10 @@ packages:
           # be tested.
           kind: package-manager
           is: pacman
+      - kind: brew
+        config:
+          name: microsoft-edge
+          cask: true
   - name: fnm
     sources:
       - kind: nushell-script
@@ -57,6 +71,9 @@ packages:
       - kind: pacman
         config:
           name: fzf
+      - kind: brew
+        config:
+          name: fzf
   - name: gemini-cli
     sources:
       - kind: npm
@@ -69,26 +86,41 @@ packages:
       - kind: pacman
         config:
           name: gimp
+      - kind: brew
+        config:
+          name: gimp
+          cask: true
   - name: imagemagick
     sources:
       - kind: pacman
         config:
           name: imagemagick
+      - kind: brew
+        config:
+          name: imagemagick
   - name: joplin
     sources:
       - kind: nushell-script
+        dependencies:
+          - name: libfuse2
         config:
           installation:
             source_file: packages/joplin/install-or-update.nu
           update:
             source_file: packages/joplin/install-or-update.nu
-    dependencies:
-      - name: libfuse2
+      - kind: brew
+        config:
+          name: joplin
+          cask: true
   - name: keepass
     sources:
       - kind: pacman
         config:
           name: keepass
+      - kind: brew
+        config:
+          name: keepassxc
+          cask: true
   - name: libfuse2
     sources:
       - kind: pacman
@@ -102,6 +134,9 @@ packages:
   - name: neovim
     sources:
       - kind: pacman
+        config:
+          name: neovim
+      - kind: brew
         config:
           name: neovim
     dependencies:
@@ -148,6 +183,9 @@ packages:
       - kind: pacman
         config:
           name: ripgrep
+      - kind: brew
+        config:
+          name: ripgrep
   - name: samba
     sources:
       - kind: pacman
@@ -158,6 +196,10 @@ packages:
       - kind: pacman
         config:
           name: steam
+      - kind: brew
+        config:
+          name: steam
+          cask: true
   - name: ts-ls
     sources:
       - kind: npm
@@ -176,21 +218,35 @@ packages:
       - kind: pacman
         config:
           name: vim
+      - kind: brew
+        config:
+          name: vim
   - name: vlc
     sources:
       - kind: pacman
         config:
           name: vlc
+      - kind: brew
+        config:
+          name: vlc
+          cask: true
   - name: wezterm
     sources:
       - kind: pacman
         config:
           name: wezterm
+      - kind: brew
+        config:
+          name: wezterm
+          cask: true
     dependencies:
       - name: nerd-fonts
   - name: wget
     sources:
       - kind: pacman
+        config:
+          name: wget
+      - kind: brew
         config:
           name: wget
   - name: wl-clipboard
@@ -203,6 +259,9 @@ packages:
       - kind: pacman
         config:
           name: zip
+      - kind: brew
+        config:
+          name: gzip
   - name: zsh
     sources:
       - kind: pacman
