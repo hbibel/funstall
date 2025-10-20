@@ -60,7 +60,7 @@ packages:
     sources:
       - kind: nushell-script
         dependencies:
-          - unzip
+          - name: unzip
         config:
           installation:
             source_file: packages/fnm/install.nu
