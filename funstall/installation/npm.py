@@ -139,7 +139,7 @@ def _create_launch_script(
         [
             "#!/bin/sh",
             "",
-            f"PATH=$PATH{os.pathsep}{add_path} {executable_path}",
+            f"PATH=$PATH{os.pathsep}{add_path} {executable_path} \"$@\"",
         ]
     )
     script_path.write_text(script)
