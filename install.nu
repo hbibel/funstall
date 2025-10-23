@@ -17,6 +17,10 @@ export def main [
   # TODO reinstall does not remove the old installation if the install_dir has
   # changed
 
+  if ($install_dir | path exists) and ($install_dir | ls | is-not-empty) and not $reinstall {
+    error make { msg: $"Installation directory ($install_dir) is not empty. Pass --reinstall to overwrite." }
+  }
+
   if (which pyenv | is-empty) {
     install-pyenv
   }
